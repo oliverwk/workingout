@@ -20,7 +20,7 @@ struct ActivityView: View {
     @State var isAtMaxScale = false
     private let animation = Animation.easeInOut(duration: 1).repeatForever(autoreverses: true)
     private let maxScale: CGFloat = 1.2
-
+    
     
     var body: some View {
         VStack(alignment: .leading) {

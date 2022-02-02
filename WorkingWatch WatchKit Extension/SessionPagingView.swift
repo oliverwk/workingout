@@ -12,11 +12,11 @@ struct SessionPagingView: View {
     @EnvironmentObject var workoutManager: WorkoutManager
     @Environment(\.isLuminanceReduced) var isLuminanceReduced
     @State private var selection: Tab = .metrics
-
+    
     enum Tab {
         case controls, metrics
     }
-
+    
     var body: some View {
         TabView(selection: $selection) {
             ControlsView().tag(Tab.controls)
@@ -38,7 +38,7 @@ struct SessionPagingView: View {
             }
         }
     }
-
+    
     private func displayMetricsView() {
         withAnimation {
             selection = .metrics

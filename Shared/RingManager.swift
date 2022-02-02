@@ -4,12 +4,44 @@
 //
 //  Created by Olivier Wittop Koning on 23/01/2022.
 //
+import Foundation
+import Combine
 
+#if os(macOS)
+class RingManager: ObservableObject {
+    @Published var kcal: CGFloat
+    @Published var KcalForRing: CGFloat
+    @Published var MinsForRing: CGFloat
+    @Published var mins: CGFloat
+    @Published var heartRate: Double
+    @Published var started: Bool
+    @Published var startedDate: Date?
+    @Published var DataFromWatch: Bool
+    @Published var timer: Timer.TimerPublisher
+    @Published var cancelTimer: Cancellable?
+    @Published var currentDate: Date
+    var CanGetHeathKitData = false
+    
+    init() {
+        self.kcal = 0.0
+        self.heartRate = 0.0
+        self.mins = 0
+        self.MinsForRing = 0
+        self.KcalForRing = 0.0
+        self.started = false
+        self.DataFromWatch = false
+        self.currentDate = Date()
+        self.timer = Timer.publish(every: 1, on: .main, in: .common)
+        self.startedDate = nil
+        cancelTimer = nil
+    }
+}
+#endif
+
+#if !os(macOS)
 import WatchConnectivity
 import HealthKit
-import Foundation
 import SwiftUI
-import Combine
 
 class RingManager: NSObject, ObservableObject, WCSessionDelegate {
     @Published var kcal: CGFloat
@@ -189,19 +221,4 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
         print("sessionDidDeactivate")
     }
 }
-
-extension Date {
-    var today: Date? {
-        let calendar = Calendar.current
-        
-        var components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: self)
-        
-        components.hour = 1
-        components.minute = 0
-        components.second = 0
-        
-        return calendar.date(from: components)
-    }
-}
-
-
+#endif

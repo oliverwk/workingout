@@ -16,8 +16,10 @@ struct VideoView: View {
     var colors: [Color] = [Color.darkRed, Color.lightRed]
     
     init (video: URL) {
-         self.video = video
-         player = AVPlayer(url: video.absoluteURL)
+        self.video = video
+        player = AVPlayer(url: video.absoluteURL)
+        player.volume = 0
+        
     }
     
     
@@ -32,13 +34,13 @@ struct VideoView: View {
                             .frame(width: 100, height: 100, alignment: .center)
                             .edgesIgnoringSafeArea(.all)
                             .offset(y: -40)
-                            
+                        
                         /*ZStack {
-                            //ActivityRingView(progress: $ringManager.kcal, colors: [Color.darkRed, Color.lightRed, Color.outlineRed], RingSize: 100, fullRing: 600.0).fixedSize()
-                           
-                            /*ActivityRingView(progress: $ringManager.KcalForRing, colors: [Color.darkRed, Color.lightRed, Color.outlineRed], RingSize: 100, fullRing: 600.0).fixedSize()
-                            ActivityRingView(progress: $ringManager.mins, colors: [Color.darkGreen, Color.lightGreen, Color.outlineGreen], RingSize: 62, fullRing: 30.0).fixedSize().padding().padding()*/
-                        }.background(.thinMaterial).cornerRadius(90).padding().padding()*/
+                         //ActivityRingView(progress: $ringManager.kcal, colors: [Color.darkRed, Color.lightRed, Color.outlineRed], RingSize: 100, fullRing: 600.0).fixedSize()
+                         
+                         /*ActivityRingView(progress: $ringManager.KcalForRing, colors: [Color.darkRed, Color.lightRed, Color.outlineRed], RingSize: 100, fullRing: 600.0).fixedSize()
+                          ActivityRingView(progress: $ringManager.mins, colors: [Color.darkGreen, Color.lightGreen, Color.outlineGreen], RingSize: 62, fullRing: 30.0).fixedSize().padding().padding()*/
+                         }.background(.thinMaterial).cornerRadius(90).padding().padding()*/
                     }
                     Spacer()
                 }
@@ -73,10 +75,10 @@ struct VideoView_Previews: PreviewProvider {
         Group {
             VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!)
                 .previewInterfaceOrientation(.landscapeRight)
-            .previewDevice("iPad (9th generation)")
+                .previewDevice("iPad (9th generation)")
             VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!)
                 .previewInterfaceOrientation(.landscapeRight)
-            .previewDevice("iPhone 7")
+                .previewDevice("iPhone 7")
         }
     }
 }

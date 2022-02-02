@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-import SwiftUI
+#if !os(macOS)
 import HealthKitUI
+
 
 struct ActivityRingViewHealthKit: UIViewRepresentable {
     
@@ -40,3 +41,5 @@ struct ActivityRingViewHealthKit_Previews: PreviewProvider {
             .frame(width: 200, height: 200, alignment: .center)
     }
 }
+#endif
+

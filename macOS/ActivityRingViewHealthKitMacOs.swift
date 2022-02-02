@@ -1,21 +1,62 @@
 //
-//  ActivityRingView.swift
-//  WorkingOut
+//  RingView.swift
+//  WorkingOut (macOS)
 //
-//  Created by Olivier Wittop Koning on 23/01/2022.
+//  Created by Olivier Wittop Koning on 02/02/2022.
 //
 
 import SwiftUI
+import Foundation
 
 
-@available(*, unavailable, message: "use the other one")
+struct HKActivitySummaryMacOS {
+    var activityMoveMode: Int = 1
+    
+    var activeEnergyBurned: Int // HKQuantity
+    
+    var activeEnergyBurnedGoal: Int // HKQuantity
+    
+    var appleMoveTime: Int // HKQuantity
+    
+    var appleMoveTimeGoal: Int // HKQuantity
+    
+    var appleExerciseTime: Int // HKQuantity
+    
+    var appleExerciseTimeGoal: Int // HKQuantity
+    
+    var appleStandHours: Int // HKQuantity
+    
+    var appleStandHoursGoal: Int // HKQuantity
+    
+    enum HKCategoryValueAppleStandHour {
+        case stood
+        case idle
+    }
+    
+    func dateComponents(for: Calendar) -> DateComponents {
+        Calendar.current.dateComponents([.era, .year, .month, .day], from: Date())
+    }
+    
+}
+
+struct ActivityRingViewHealthKit: View {
+    var activitySummary: Any
+    
+    var body: some View {
+        VStack {
+            ActivityRingView(progress: .constant(500), colors: [Color.darkRed, Color.lightRed, Color.outlineRed], RingSize: 100, fullRing: 600.0).fixedSize().padding()
+            ActivityRingView(progress: .constant(15.0), colors: [Color.darkGreen, Color.lightGreen, Color.outlineGreen], RingSize: 62, fullRing: 30.0).fixedSize()
+        }.preferredColorScheme(.dark)
+    }
+}
+
 struct ActivityRingView: View {
     @Binding var progress: CGFloat
-    let colors: [Color] // = [Color.darkRed, Color.lightRed, Color.outlineRed]
+    let colors: [Color]
     let RingSize: Double
     let fullRing: Double
-  
-   
+    
+    
     var body: some View {
         withAnimation(.spring(response: 0.6, dampingFraction: 1.0, blendDuration: 1.0)) {
             ZStack {
@@ -47,38 +88,8 @@ struct ActivityRingView: View {
     }
 }
 
-extension Color {
-    public static var outlineRed: Color {
-        return Color(decimalRed: 34, green: 0, blue: 3)
-    }
-    public static var darkRed: Color {
-        return Color(decimalRed: 221, green: 31, blue: 59)
-    }
-    public static var lightRed: Color {
-        return Color(decimalRed: 239, green: 54, blue: 128)
-    }
-    
-    public static var outlineGreen: Color {
-        return Color(decimalRed: 0, green: 36, blue: 3)
-    }
-    public static var darkGreen: Color {
-        return Color(decimalRed: 31, green: 221, blue: 59)
-    }
-    public static var lightGreen: Color {
-        return Color(decimalRed: 128, green: 255, blue: 0)
-    }
-    
-    public init(decimalRed red: Double, green: Double, blue: Double) {
-        self.init(red: red / 255, green: green / 255, blue: blue / 255)
-    }
-}
-
-@available(*, unavailable, message: "use the other one")
 struct ActivityRingView_Previews: PreviewProvider {
     static var previews: some View {
-        VStack {
-            ActivityRingView(progress: .constant(500), colors: [Color.darkRed, Color.lightRed, Color.outlineRed], RingSize: 100, fullRing: 600.0).fixedSize().padding()
-            ActivityRingView(progress: .constant(15.0), colors: [Color.darkGreen, Color.lightGreen, Color.outlineGreen], RingSize: 62, fullRing: 30.0).fixedSize()
-        }.preferredColorScheme(.dark)
+        ActivityRingViewHealthKit(activitySummary: HKActivitySummaryMacOS(activeEnergyBurned: 1, activeEnergyBurnedGoal: 1, appleMoveTime: 1, appleMoveTimeGoal: 1, appleExerciseTime: 1, appleExerciseTimeGoal: 1, appleStandHours: 1, appleStandHoursGoal: 1))
     }
 }

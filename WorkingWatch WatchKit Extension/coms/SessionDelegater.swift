@@ -21,7 +21,7 @@ class SessionDelegater: NSObject, WCSessionDelegate {
     // Called when WCSession reachability is changed.
     //
     func sessionReachabilityDidChange(_ session: WCSession) {
-       print("sessionReachabilityDidChange")
+        print("sessionReachabilityDidChange")
     }
     
     

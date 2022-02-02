@@ -21,18 +21,18 @@ class WorkoutManager: NSObject, ObservableObject {
             session.activate()
         }
     }
-
+    
     let healthStore = HKHealthStore()
     var session: HKWorkoutSession?
     var builder: HKLiveWorkoutBuilder?
-
+    
     // Start the workout.
     func startWorkout(workoutType: HKWorkoutActivityType) {
         print("Starting the workout")
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = workoutType
         configuration.locationType = .indoor
-
+        
         // Create the session and obtain the workout builder.
         do {
             session = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
@@ -42,15 +42,15 @@ class WorkoutManager: NSObject, ObservableObject {
             print("There was an erorr with building the workout: \(error.localizedDescription)")
             return
         }
-
+        
         // Setup session and builder.
         session?.delegate = self
         builder?.delegate = self
-
+        
         // Set the workout builder's data source.
         builder?.dataSource = HKLiveWorkoutDataSource(healthStore: healthStore,
-                                                     workoutConfiguration: configuration)
-
+                                                      workoutConfiguration: configuration)
+        
         // Start the workout session and begin data collection.
         let startDate = Date()
         session?.startActivity(with: startDate)
@@ -64,14 +64,14 @@ class WorkoutManager: NSObject, ObservableObject {
             // TODO: send start time to the iphone
         }
     }
-
+    
     // Request authorization to access HealthKit.
     func requestAuthorization() {
         // The quantity type to write to the health store.
         let typesToShare: Set = [
             HKQuantityType.workoutType()
         ]
-
+        
         // The quantity types to read from the health store.
         let typesToRead: Set = [
             HKQuantityType.quantityType(forIdentifier: .heartRate)!,
@@ -79,19 +79,19 @@ class WorkoutManager: NSObject, ObservableObject {
             HKObjectType.activitySummaryType(),
             HKObjectType.workoutType()
         ]
-
+        
         // Request authorization for those quantity types.
         healthStore.requestAuthorization(toShare: typesToShare, read: typesToRead) { (success, error) in
             // Handle error.
             print("HealthAuth error failed, with error: \(error.debugDescription)")
         }
     }
-
+    
     // MARK: - Session State Control
-
+    
     // The app's workout state.
     @Published var running = false
-
+    
     func togglePause() {
         if running == true {
             self.pause()
@@ -99,22 +99,22 @@ class WorkoutManager: NSObject, ObservableObject {
             resume()
         }
     }
-
+    
     func pause() {
         session?.pause()
         // TODO: update time on the iphone
     }
-
+    
     func resume() {
         session?.resume()
         // TODO: update time on the iphone
     }
-
+    
     func endWorkout() {
         session?.end()
         self.started = false
     }
-
+    
     // MARK: - Workout Metrics
     @Published var MinutesPased: Int = 0 {
         didSet {
@@ -137,10 +137,10 @@ class WorkoutManager: NSObject, ObservableObject {
         }
     }
     @Published var workout: HKWorkout?
-
+    
     func updateForStatistics(_ statistics: HKStatistics?) {
         guard let statistics = statistics else { return }
-
+        
         DispatchQueue.main.async {
             switch statistics.quantityType {
             case HKQuantityType.quantityType(forIdentifier: .appleExerciseTime):
@@ -159,7 +159,7 @@ class WorkoutManager: NSObject, ObservableObject {
             }
         }
     }
-
+    
     func resetWorkout() {
         builder = nil
         workout = nil
@@ -177,7 +177,7 @@ extension WorkoutManager: HKWorkoutSessionDelegate {
         DispatchQueue.main.async {
             self.running = toState == .running
         }
-
+        
         // Wait for the session to transition states before ending the builder.
         if toState == .ended {
             builder?.endCollection(withEnd: date) { (success, error) in
@@ -190,26 +190,26 @@ extension WorkoutManager: HKWorkoutSessionDelegate {
             }
         }
     }
-
+    
     func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
-
+        
     }
 }
 
 // MARK: - HKLiveWorkoutBuilderDelegate
 extension WorkoutManager: HKLiveWorkoutBuilderDelegate {
     func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {
-
+        
     }
-
+    
     func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
         for type in collectedTypes {
             guard let quantityType = type as? HKQuantityType else {
                 return // Nothing to do.
             }
-
+            
             let statistics = workoutBuilder.statistics(for: quantityType)
-
+            
             // Update the published values.
             updateForStatistics(statistics)
         }
