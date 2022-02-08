@@ -19,6 +19,7 @@
 		E626FB5E279D84B900004422 /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E626FB5C279D84B900004422 /* VideoView.swift */; };
 		E626FB60279D84F600004422 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E626FB5F279D84F600004422 /* ActivityView.swift */; };
 		E626FB61279D84F600004422 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E626FB5F279D84F600004422 /* ActivityView.swift */; };
+		E637790627B18B9A00BFF058 /* ActivityRingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E637790527B18B9A00BFF058 /* ActivityRingsView.swift */; };
 		E64F82C427AA9C06001D1112 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E64F82C327AA9C06001D1112 /* Helpers.swift */; };
 		E64F82C527AA9C06001D1112 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E64F82C327AA9C06001D1112 /* Helpers.swift */; };
 		E64F82C727AA9C51001D1112 /* ActivityRingViewHealthKitMacOs.swift in Sources */ = {isa = PBXBuildFile; fileRef = E64F82C627AA9C51001D1112 /* ActivityRingViewHealthKitMacOs.swift */; };
@@ -96,6 +97,7 @@
 		E626FB59279D84A100004422 /* Videos */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Videos; sourceTree = "<group>"; };
 		E626FB5C279D84B900004422 /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
 		E626FB5F279D84F600004422 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
+		E637790527B18B9A00BFF058 /* ActivityRingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRingsView.swift; sourceTree = "<group>"; };
 		E64F82C327AA9C06001D1112 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		E64F82C627AA9C51001D1112 /* ActivityRingViewHealthKitMacOs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRingViewHealthKitMacOs.swift; sourceTree = "<group>"; };
 		E65BBBD2279D979500AE47B9 /* WorkingWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WorkingWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -255,6 +257,7 @@
 				E65BBBE1279D979600AE47B9 /* WorkingOutApp.swift */,
 				E65BBBDF279D979600AE47B9 /* ContentView.swift */,
 				E65BBBFD279D9C1C00AE47B9 /* MetricsView.swift */,
+				E637790527B18B9A00BFF058 /* ActivityRingsView.swift */,
 				E65BBBFB279D9C0500AE47B9 /* ControlsView.swift */,
 			);
 			path = Views;
@@ -453,6 +456,7 @@
 			files = (
 				E65BBC06279DA31D00AE47B9 /* SessionDelegater.swift in Sources */,
 				E65BBBE2279D979600AE47B9 /* WorkingOutApp.swift in Sources */,
+				E637790627B18B9A00BFF058 /* ActivityRingsView.swift in Sources */,
 				E65BBBFE279D9C1C00AE47B9 /* MetricsView.swift in Sources */,
 				E65BBBF8279D97E300AE47B9 /* WorkoutManager.swift in Sources */,
 				E65BBBFA279D9BAE00AE47B9 /* SessionPagingView.swift in Sources */,

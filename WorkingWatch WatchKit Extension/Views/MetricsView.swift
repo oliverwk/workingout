@@ -13,22 +13,56 @@ struct MetricsView: View {
     
     var body: some View {
         TimelineView(MetricsTimelineSchedule(from: workoutManager.builder?.startDate ?? Date())) { context in
-            VStack(alignment: .leading) {
-                // TODO: add rings here
-                Image(systemName: "figure.walk")
-                    .foregroundColor(.green)
-                Spacer()
-                ElapsedTimeView(elapsedTime: workoutManager.builder?.elapsedTime ?? 0, showSubseconds: context.cadence == .live)
-                    .foregroundStyle(.yellow)
-                Text(Measurement(value: workoutManager.activeEnergy, unit: UnitEnergy.kilocalories)
-                        .formatted(.measurement(width: .abbreviated, usage: .workout, numberFormatStyle: .number.precision(.fractionLength(0)))))
-                Text(workoutManager.heartRate.formatted(.number.precision(.fractionLength(0))) + " bpm")
+            HStack(alignment: .top) {
+                VStack(alignment: .leading) {
+                    ProgressView(value: workoutManager.progrezz) {
+                        Image(systemName: "figure.walk")
+                            .padding()
+                            .font(.title3)
+                    }.gaugeStyle(.circular)
+                    .progressViewStyle(CircularProgressViewStyle(tint: Color.darkRed))
+                    .padding(.top)
+                    // Image(systemName: "figure.walk").foregroundColor(.green)
+                    Spacer()
+                    ElapsedTimeView(elapsedTime: workoutManager.builder?.elapsedTime ?? 0, showSubseconds: context.cadence == .live)
+                        .foregroundStyle(.yellow)
+                    Text(Measurement(value: workoutManager.activeEnergy, unit: UnitEnergy.kilocalories)
+                            .formatted(.measurement(width: .abbreviated, usage: .workout, numberFormatStyle: .number.precision(.fractionLength(0)))))
+                    Text(workoutManager.heartRate.formatted(.number.precision(.fractionLength(0))) + " bpm")
+                }
             }
             .font(.system(.title2, design: .rounded).monospacedDigit().lowercaseSmallCaps())
             .frame(maxWidth: .infinity, alignment: .leading)
-        //    .ignoresSafeArea(edges: .bottom)
+            //.ignoresSafeArea(edges: .bottom)
             //.scenePadding()
         }
+    }
+}
+
+extension Color {
+    public static var outlineRed: Color {
+        return Color(decimalRed: 34, green: 0, blue: 3)
+    }
+    public static var darkRed: Color {
+        return Color(decimalRed: 221, green: 31, blue: 59)
+    }
+    public static var lightRed: Color {
+        return Color(decimalRed: 239, green: 54, blue: 128)
+    }
+    
+    
+    public static var outlineGreen: Color {
+        return Color(decimalRed: 0, green: 36, blue: 3)
+    }
+    public static var darkGreen: Color {
+        return Color(decimalRed: 31, green: 221, blue: 59)
+    }
+    public static var lightGreen: Color {
+        return Color(decimalRed: 128, green: 255, blue: 0)
+    }
+    
+    public init(decimalRed red: Double, green: Double, blue: Double) {
+        self.init(red: red / 255, green: green / 255, blue: blue / 255)
     }
 }
 

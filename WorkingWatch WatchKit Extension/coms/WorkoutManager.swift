@@ -20,6 +20,7 @@ class WorkoutManager: NSObject, ObservableObject {
             session.delegate = LiveManager
             session.activate()
         }
+        GetInitialRingData()
     }
     
     let healthStore = HKHealthStore()
@@ -131,12 +132,19 @@ class WorkoutManager: NSObject, ObservableObject {
             self.sendMessage(message: HealthData(kcals: self.activeEnergy, mins: self.MinutesPased, heartRate: self.heartRate))
         }
     }
-    @Published var activeEnergy: Double = 0 {
+    @Published var activeEnergy: Double = 0.0 {
         didSet {
             self.sendMessage(message: HealthData(kcals: self.activeEnergy, mins: self.MinutesPased, heartRate: self.heartRate))
+            self.progrezz = abs((self.activeEnergy+0.1)/(600 - (InitialRingData?.activeEnergyBurned.doubleValue(for: HKUnit.largeCalorie()))!))
+            // print("PROGREZZ; \(self.progrezz) (\(self.activeEnergy+0.1))/(600 - (\(String(describing: InitialRingData?.activeEnergyBurned.doubleValue(for: HKUnit.largeCalorie())))!))")
         }
     }
+    
+    @Published var progrezz: Double = 0.0
+    var InitialRingData: HKActivitySummary?
+    
     @Published var workout: HKWorkout?
+    
     
     func updateForStatistics(_ statistics: HKStatistics?) {
         guard let statistics = statistics else { return }
@@ -158,6 +166,21 @@ class WorkoutManager: NSObject, ObservableObject {
                 return
             }
         }
+    }
+    
+    func GetInitialRingData() -> Void {
+        let calendar = Calendar.current
+        var components = calendar.dateComponents([.era, .year, .month, .day], from: Date())
+        components.calendar = calendar
+        
+        let predicate = HKQuery.predicateForActivitySummary(with: components)
+        let query = HKActivitySummaryQuery(predicate: predicate) { query, summaries, error in
+            DispatchQueue.main.async {
+                self.InitialRingData = summaries?.first
+            }
+        }
+
+        healthStore.execute(query)
     }
     
     func resetWorkout() {

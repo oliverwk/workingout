@@ -22,7 +22,7 @@ struct SessionPagingView: View {
             ControlsView().tag(Tab.controls)
             MetricsView().tag(Tab.metrics)
         }
-        .navigationTitle("HITT, with growingannas")
+       // .navigationTitle("HITT, with growingannas")
         .navigationBarBackButtonHidden(true)
         .onChange(of: workoutManager.running) { _ in
             displayMetricsView()
