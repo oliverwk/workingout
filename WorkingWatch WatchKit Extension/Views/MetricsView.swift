@@ -20,9 +20,8 @@ struct MetricsView: View {
                             .padding()
                             .font(.title3)
                     }.gaugeStyle(.circular)
-                    .progressViewStyle(CircularProgressViewStyle(tint: Color.darkRed))
-                    .padding(.top)
-                    // Image(systemName: "figure.walk").foregroundColor(.green)
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color.darkRed))
+                        .padding(.top)
                     Spacer()
                     ElapsedTimeView(elapsedTime: workoutManager.builder?.elapsedTime ?? 0, showSubseconds: context.cadence == .live)
                         .foregroundStyle(.yellow)
@@ -33,8 +32,6 @@ struct MetricsView: View {
             }
             .font(.system(.title2, design: .rounded).monospacedDigit().lowercaseSmallCaps())
             .frame(maxWidth: .infinity, alignment: .leading)
-            //.ignoresSafeArea(edges: .bottom)
-            //.scenePadding()
         }
     }
 }

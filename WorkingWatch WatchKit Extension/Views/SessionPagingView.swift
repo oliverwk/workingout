@@ -14,22 +14,35 @@ struct SessionPagingView: View {
     @State private var selection: Tab = .metrics
     
     enum Tab {
-        case controls, metrics
+        case controls, metrics, congrats
     }
     
     var body: some View {
         TabView(selection: $selection) {
             ControlsView().tag(Tab.controls)
             MetricsView().tag(Tab.metrics)
+            if workoutManager.progrezz >= 1 {
+                CongratsView().tag(Tab.congrats)
+            }
         }
-       // .navigationTitle("HITT, with growingannas")
+        // .navigationTitle("HITT, with growingannas")
         .navigationBarBackButtonHidden(true)
         .onChange(of: workoutManager.running) { _ in
-            displayMetricsView()
+            displayView(.metrics)
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: isLuminanceReduced ? .never : .automatic))
         .onChange(of: isLuminanceReduced) { _ in
-            displayMetricsView()
+            displayView(.metrics)
+        }
+        .onChange(of: workoutManager.progrezz) { _ in
+            if workoutManager.progrezz >= 1 {
+                print("You got the rings, Nice!")
+                WKInterfaceDevice.current().play(.notification)
+                displayView(.congrats)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    displayView(.metrics)
+                }
+            }
         }
         .onAppear {
             print("Bonjour need to start training, becaue running: \(workoutManager.running)")
@@ -39,9 +52,9 @@ struct SessionPagingView: View {
         }
     }
     
-    private func displayMetricsView() {
+    func displayView(_ tab: Tab) {
         withAnimation {
-            selection = .metrics
+            selection = tab
         }
     }
 }

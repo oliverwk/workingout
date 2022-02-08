@@ -19,7 +19,6 @@
 		E626FB5E279D84B900004422 /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E626FB5C279D84B900004422 /* VideoView.swift */; };
 		E626FB60279D84F600004422 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E626FB5F279D84F600004422 /* ActivityView.swift */; };
 		E626FB61279D84F600004422 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E626FB5F279D84F600004422 /* ActivityView.swift */; };
-		E637790627B18B9A00BFF058 /* ActivityRingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E637790527B18B9A00BFF058 /* ActivityRingsView.swift */; };
 		E64F82C427AA9C06001D1112 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E64F82C327AA9C06001D1112 /* Helpers.swift */; };
 		E64F82C527AA9C06001D1112 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E64F82C327AA9C06001D1112 /* Helpers.swift */; };
 		E64F82C727AA9C51001D1112 /* ActivityRingViewHealthKitMacOs.swift in Sources */ = {isa = PBXBuildFile; fileRef = E64F82C627AA9C51001D1112 /* ActivityRingViewHealthKitMacOs.swift */; };
@@ -43,6 +42,7 @@
 		E66E619D279F535D00FACD44 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E66E619C279F535D00FACD44 /* HealthKit.framework */; };
 		E6CD041327AA7F3D00B132CD /* ActivityRingViewHealthKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6CD041227AA7F3D00B132CD /* ActivityRingViewHealthKit.swift */; };
 		E6CD041427AA7F3D00B132CD /* ActivityRingViewHealthKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6CD041227AA7F3D00B132CD /* ActivityRingViewHealthKit.swift */; };
+		E6D9CE4727B2D391007FE045 /* CongratsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D9CE4627B2D391007FE045 /* CongratsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,7 +97,6 @@
 		E626FB59279D84A100004422 /* Videos */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Videos; sourceTree = "<group>"; };
 		E626FB5C279D84B900004422 /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
 		E626FB5F279D84F600004422 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
-		E637790527B18B9A00BFF058 /* ActivityRingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRingsView.swift; sourceTree = "<group>"; };
 		E64F82C327AA9C06001D1112 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		E64F82C627AA9C51001D1112 /* ActivityRingViewHealthKitMacOs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRingViewHealthKitMacOs.swift; sourceTree = "<group>"; };
 		E65BBBD2279D979500AE47B9 /* WorkingWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WorkingWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -122,6 +121,7 @@
 		E66E619B279F535C00FACD44 /* WorkingOut (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "WorkingOut (iOS).entitlements"; sourceTree = "<group>"; };
 		E66E619C279F535D00FACD44 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/System/Library/Frameworks/HealthKit.framework; sourceTree = DEVELOPER_DIR; };
 		E6CD041227AA7F3D00B132CD /* ActivityRingViewHealthKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRingViewHealthKit.swift; sourceTree = "<group>"; };
+		E6D9CE4627B2D391007FE045 /* CongratsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CongratsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -213,7 +213,6 @@
 			children = (
 				E65BBC07279DA63800AE47B9 /* WorkingWatch WatchKit Extension.entitlements */,
 				E6FA13B727A3019B00E808A4 /* Views */,
-				E65BBBF9279D9BAE00AE47B9 /* SessionPagingView.swift */,
 				E6FA13B627A3018B00E808A4 /* coms */,
 				E65BBBE3279D979600AE47B9 /* ComplicationController.swift */,
 				E65BBBE5279D979700AE47B9 /* Assets.xcassets */,
@@ -256,9 +255,10 @@
 			children = (
 				E65BBBE1279D979600AE47B9 /* WorkingOutApp.swift */,
 				E65BBBDF279D979600AE47B9 /* ContentView.swift */,
+				E65BBBF9279D9BAE00AE47B9 /* SessionPagingView.swift */,
 				E65BBBFD279D9C1C00AE47B9 /* MetricsView.swift */,
-				E637790527B18B9A00BFF058 /* ActivityRingsView.swift */,
 				E65BBBFB279D9C0500AE47B9 /* ControlsView.swift */,
+				E6D9CE4627B2D391007FE045 /* CongratsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -456,12 +456,12 @@
 			files = (
 				E65BBC06279DA31D00AE47B9 /* SessionDelegater.swift in Sources */,
 				E65BBBE2279D979600AE47B9 /* WorkingOutApp.swift in Sources */,
-				E637790627B18B9A00BFF058 /* ActivityRingsView.swift in Sources */,
 				E65BBBFE279D9C1C00AE47B9 /* MetricsView.swift in Sources */,
 				E65BBBF8279D97E300AE47B9 /* WorkoutManager.swift in Sources */,
 				E65BBBFA279D9BAE00AE47B9 /* SessionPagingView.swift in Sources */,
 				E65BBBE0279D979600AE47B9 /* ContentView.swift in Sources */,
 				E65BBBFC279D9C0500AE47B9 /* ControlsView.swift in Sources */,
+				E6D9CE4727B2D391007FE045 /* CongratsView.swift in Sources */,
 				E65BBC04279D9FBA00AE47B9 /* CommunicationManager.swift in Sources */,
 				E65BBBE4279D979600AE47B9 /* ComplicationController.swift in Sources */,
 			);
