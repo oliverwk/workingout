@@ -1,11 +1,17 @@
 //
 //  RingManager.swift
-//  WorkingWatch WatchKit Extension
+//  WorkingOut
 //
 //  Created by Olivier Wittop Koning on 23/01/2022.
 //
 import Foundation
 import Combine
+import os
+
+let logger = Logger(
+    subsystem: "nl.wittopkoning.WorkingOut",
+    category: "RingManager"
+)
 
 #if os(macOS)
 class RingManager: ObservableObject {
@@ -44,6 +50,7 @@ import HealthKit
 import SwiftUI
 
 class RingManager: NSObject, ObservableObject, WCSessionDelegate {
+    
     @Published var kcal: CGFloat
     @Published var KcalForRing: CGFloat
     @Published var MinsForRing: CGFloat
@@ -82,7 +89,7 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
             session.delegate = self
             session.activate()
         } else {
-            print("No watch connction")
+            logger.log("No watch connction")
         }
         
         if HKHealthStore.isHealthDataAvailable() {
@@ -91,12 +98,12 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
             healthStore.requestAuthorization(toShare: allTypes, read: allTypesAndMinutes) { (success, error) in
                 self.CanGetHeathKitData = success
                 if !success {
-                    print("Error with getting healthkit things \(error.debugDescription)")
+                    logger.error("Error with getting healthkit things \(error.debugDescription, privacy: .public)")
                     // Handle the error here.
                 } else {
                     self.GetHealthKitStatistics(type: HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!) { quantity, stat in
                         let value = quantity.doubleValue(for: HKUnit.kilocalorie())
-                        print("kcals from healthkit: \(value) at date \(stat.startDate)")
+                        logger.log("kcals from healthkit: \(value, privacy: .public) at date \(stat.startDate, privacy: .public)")
                         DispatchQueue.main.async {
                             self.kcal = CGFloat(value)
                             self.KcalForRing = CGFloat(value)
@@ -105,7 +112,7 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
                     }
                     self.GetHealthKitStatistics(type: HKQuantityType.quantityType(forIdentifier: .appleExerciseTime)!) { quantity, stat in
                         let value = quantity.doubleValue(for: HKUnit.minute())
-                        print("mins from healthkit: \(value) at date \(stat.startDate)")
+                        logger.log("mins from healthkit: \(value, privacy: .public) at date \(stat.startDate, privacy: .public)")
                         DispatchQueue.main.async {
                             self.mins = CGFloat(value)
                             self.MinsForRing = CGFloat(value)
@@ -113,7 +120,7 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
                         }
                     }
                     self.GetHealthKitSample(sampleType: HKQuantityType.quantityType(forIdentifier: .heartRate)!) { heartreate in
-                        print("heartreate from healthkit: \(heartreate)")
+                        logger.log("heartreate from healthkit: \(heartreate, privacy: .public)")
                         DispatchQueue.main.async {
                             self.heartRate = heartreate
                         }
@@ -131,9 +138,9 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
         let sampleQuery = HKSampleQuery(sampleType: sampleType, predicate: mostRecentPredicate, limit: 1, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
             guard let samples = samples, let mostRecentSample = samples.first as? HKQuantitySample else {
                 if let error = error {
-                    print("the err: \(error.localizedDescription), couldn't get a smaple")
+                    logger.log("the err: \(error.localizedDescription, privacy: .public), couldn't get a smaple")
                 }
-                print("Things didn't work: \(String(describing: samples))")
+                logger.log("Things didn't work: \(String(describing: samples), privacy: .public)")
                 return
             }
             let heartreate = mostRecentSample.quantity.doubleValue(for: (sampleType == HKSampleType.quantityType(forIdentifier: .heartRate)! ? HKUnit(from: "count/min") : HKUnit.minute()))
@@ -155,7 +162,7 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
             
             guard let statsCollection = results else {
                 // Perform proper error handling here
-                print("*** An error occurred while calculating the statistics: \(String(describing: error?.localizedDescription)) ***")
+                logger.error("*** An error occurred while calculating the statistics: \(String(describing: error?.localizedDescription), privacy: .public) ***")
                 return
             }
             let endDate = Date()
@@ -163,7 +170,7 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
                 if let quantity = statistics.sumQuantity() {
                     SampleDone(quantity, statistics)
                 } else {
-                    print("didn't find any stats about \(type.debugDescription)")
+                    logger.log("didn't find any stats about \(type.debugDescription, privacy: .public)")
                 }
             })
         }
@@ -186,7 +193,7 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
     // MARK: - WatchConntion Stuff
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        print("activationDidCompleteWith with activationState: \(activationState.rawValue) hope it is 2 or 0 if it is 1 deactive")
+        logger.log("activationDidCompleteWith with activationState: \(activationState.rawValue, privacy: .public) hope it is 2 or 0 if it is 1 deactive")
     }
     
     //    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
@@ -199,7 +206,7 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
             }
         }
         
-        print("didReceiveMessage: \(message.debugDescription)")
+        logger.log("didReceiveMessage: \(message.debugDescription, privacy: .public)")
         DispatchQueue.main.async {
             self.heartRate = message["heartRate"] as! Double
             self.mins = message["mins"] as! CGFloat
@@ -213,12 +220,12 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
     
     func sessionDidBecomeInactive(_ session: WCSession) {
         // add a timer to make sure the time keeps running and delete the heart rate shit
-        print("sessionDidBecomeInactive")
+        logger.log("sessionDidBecomeInactive")
     }
     
     func sessionDidDeactivate(_ session: WCSession) {
         // add a timer to make sure the time keeps running and delete the heart rate shit
-        print("sessionDidDeactivate")
+        logger.log("sessionDidDeactivate")
     }
 }
 #endif

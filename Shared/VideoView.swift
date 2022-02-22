@@ -7,8 +7,13 @@
 
 import SwiftUI
 import AVKit
+import os
 
 struct VideoView: View {
+    let logger = Logger(
+        subsystem: "nl.wittopkoning.WorkingOut",
+        category: "VideoView"
+    )
     @StateObject var ringManager = RingManager()
     @State var barHidden = false
     let video: URL
@@ -47,7 +52,7 @@ struct VideoView: View {
             }.onTapGesture {
                 if player.isPlaying {
                     player.pause()
-                    print("player paused")
+                    logger.log("player paused")
                     ringManager.started = false
                     ringManager.timer.connect().cancel()
                     self.barHidden = false
@@ -56,7 +61,7 @@ struct VideoView: View {
                     if ringManager.startedDate == nil {
                         ringManager.startedDate = Date()
                     }
-                    print("player resumed")
+                    logger.log("player resumed")
                     ringManager.started = true
                     self.barHidden = true
                     ringManager.timer = Timer.publish(every: 1, on: .main, in: .common)

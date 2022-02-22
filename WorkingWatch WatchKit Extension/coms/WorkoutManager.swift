@@ -5,11 +5,17 @@
 //  Created by Olivier Wittop Koning on 23/01/2022.
 //
 
+import os
 import Foundation
 import HealthKit
 import WatchConnectivity
 
 class WorkoutManager: NSObject, ObservableObject {
+    let logger = Logger(
+            subsystem: "nl.wittopkoning.WorkingOut",
+            category: "WorkoutManager"
+        )
+
     @Published var started: Bool? = false
     let LiveManager = SessionDelegater()
     var lastSendData = HealthData(kcals: 0.0, mins: 0, heartRate: 0.0) // This is for coms between the hpone and watch
@@ -29,7 +35,7 @@ class WorkoutManager: NSObject, ObservableObject {
     
     // Start the workout.
     func startWorkout(workoutType: HKWorkoutActivityType) {
-        print("Starting the workout")
+        logger.debug("Starting the workout")
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = workoutType
         configuration.locationType = .indoor
@@ -40,7 +46,7 @@ class WorkoutManager: NSObject, ObservableObject {
             builder = session?.associatedWorkoutBuilder()
         } catch {
             // Handle any exceptions.
-            print("There was an erorr with building the workout: \(error.localizedDescription)")
+            logger.error("There was an erorr with building the workout: \(error.localizedDescription)")
             return
         }
         
@@ -58,9 +64,9 @@ class WorkoutManager: NSObject, ObservableObject {
         builder?.beginCollection(withStart: startDate) { (success, error) in
             // The workout has started.
             if success {
-                print("The workout has started successfully")
+                self.logger.debug("The workout has started successfully")
             } else {
-                print("There was an error with the workout didn't start: \(error.debugDescription)")
+                self.logger.error("There was an error with the workout didn't start: \(error.debugDescription)")
             }
             // TODO: send start time to the iphone
         }
@@ -84,7 +90,11 @@ class WorkoutManager: NSObject, ObservableObject {
         // Request authorization for those quantity types.
         healthStore.requestAuthorization(toShare: typesToShare, read: typesToRead) { (success, error) in
             // Handle error.
-            print("HealthAuth error failed, with error: \(error.debugDescription)")
+            if !success {
+                self.logger.error("HealthAuth error failed, with error: \(error.debugDescription)")
+            } else {
+                self.logger.log("HealthAuth successed")
+            }
         }
     }
     
@@ -135,8 +145,8 @@ class WorkoutManager: NSObject, ObservableObject {
     @Published var activeEnergy: Double = 0.0 {
         didSet {
             self.sendMessage(message: HealthData(kcals: self.activeEnergy, mins: self.MinutesPased, heartRate: self.heartRate))
-            self.progrezz = abs((self.activeEnergy+0.1)/(600 - (InitialRingData?.activeEnergyBurned.doubleValue(for: HKUnit.largeCalorie()))!))
-            // print("PROGREZZ; \(self.progrezz) (\(self.activeEnergy+0.1))/(600 - (\(String(describing: InitialRingData?.activeEnergyBurned.doubleValue(for: HKUnit.largeCalorie())))!))")
+            self.progrezz = (self.activeEnergy+0.1)/abs(600 - (InitialRingData?.activeEnergyBurned.doubleValue(for: HKUnit.largeCalorie()))!)
+            logger.log("PROGREZZ; \(self.progrezz) (\(self.activeEnergy+0.1))/(600 - (\(String(describing: self.InitialRingData?.activeEnergyBurned.doubleValue(for: HKUnit.largeCalorie())))!))")
         }
     }
     
@@ -162,7 +172,7 @@ class WorkoutManager: NSObject, ObservableObject {
                 let energyUnit = HKUnit.kilocalorie()
                 self.activeEnergy = statistics.sumQuantity()?.doubleValue(for: energyUnit) ?? 0
             default:
-                print("statistics.quantityType: \(statistics.quantityType.debugDescription)")
+                self.logger.log("statistics.quantityType: \(statistics.quantityType.debugDescription)")
                 return
             }
         }
@@ -176,6 +186,7 @@ class WorkoutManager: NSObject, ObservableObject {
         let predicate = HKQuery.predicateForActivitySummary(with: components)
         let query = HKActivitySummaryQuery(predicate: predicate) { query, summaries, error in
             DispatchQueue.main.async {
+                self.logger.log("InitialRingData: \(String(describing: summaries?.first.debugDescription))")
                 self.InitialRingData = summaries?.first
             }
         }

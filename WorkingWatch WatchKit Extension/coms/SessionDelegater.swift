@@ -7,28 +7,33 @@
 
 import Foundation
 import WatchConnectivity
+import os
 
 #if os(watchOS)
 import ClockKit
 #endif
 class SessionDelegater: NSObject, WCSessionDelegate {
+    let logger = Logger(
+        subsystem: "nl.wittopkoning.WorkingWatch",
+        category: "SessionDelegater"
+    )
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        print("activationDidCompleteWith: \(activationState.rawValue)")
+        logger.log("activationDidCompleteWith: \(activationState.rawValue, privacy: .public)")
     }
     
     
     // Called when WCSession reachability is changed.
     //
     func sessionReachabilityDidChange(_ session: WCSession) {
-        print("sessionReachabilityDidChange")
+        logger.log("sessionReachabilityDidChange")
     }
     
     
     // Called when a message is received and the peer doesn't need a response.
     //
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        print("didReceiveMessage: \(message.debugDescription)")
+        logger.log("didReceiveMessage: \(message.debugDescription, privacy: .public)")
     }
     
     // Called when a message is received and the peer needs a response.

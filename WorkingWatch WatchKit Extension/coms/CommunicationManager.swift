@@ -12,20 +12,20 @@ extension WorkoutManager {
     
     func sendMessage(message: HealthData) -> Void {
         guard WCSession.default.activationState == .activated else {
-            print("Session not active")
+            logger.log("Session not active")
             return
         }
-        print("Message to be send to the iphone: \(message)")
+        logger.log("Message to be send to the iphone: \(message, privacy: .public)")
         if lastSendData == message {
-            print("The data is the same so not sending it")
+            logger.log("The data is the same so not sending it")
             return
         } else {
-            print("sending message to iphone with data: \(message), because it isn't the same")
+            logger.log("sending message to iphone with data: \(message, privacy: .public), because it isn't the same")
             
             WCSession.default.sendMessage(message.msg, replyHandler: { replyMessage in
-                print("Recieved a message from the watch: \(replyMessage)")
+                self.logger.log("Recieved a message from the watch: \(replyMessage, privacy: .public)")
             }, errorHandler: { error in
-                print("There was an erorr while send a message: \(error.localizedDescription)")
+                self.logger.log("There was an erorr while send a message: \(error.localizedDescription, privacy: .public)")
             })
             lastSendData = message
         }

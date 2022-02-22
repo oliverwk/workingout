@@ -7,11 +7,17 @@
 
 import SwiftUI
 import WatchKit
+import os
 
 struct SessionPagingView: View {
     @EnvironmentObject var workoutManager: WorkoutManager
     @Environment(\.isLuminanceReduced) var isLuminanceReduced
     @State private var selection: Tab = .metrics
+    @State private var showedAward: Bool = false
+    let logger = Logger(
+        subsystem: "nl.wittopkoning.WorkingOut",
+        category: "SessionPagingView"
+    )
     
     enum Tab {
         case controls, metrics, congrats
@@ -35,17 +41,20 @@ struct SessionPagingView: View {
             displayView(.metrics)
         }
         .onChange(of: workoutManager.progrezz) { _ in
-            if workoutManager.progrezz >= 1 {
-                print("You got the rings, Nice!")
-                WKInterfaceDevice.current().play(.notification)
-                displayView(.congrats)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    displayView(.metrics)
+            if !showedAward {
+                if workoutManager.progrezz >= 1 {
+                    logger.log("You got the rings, Nice!")
+                    WKInterfaceDevice.current().play(.notification)
+                    displayView(.congrats)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        displayView(.metrics)
+                    }
+                    showedAward = true
                 }
             }
         }
         .onAppear {
-            print("Bonjour need to start training, becaue running: \(workoutManager.running)")
+            logger.log("Bonjour need to start training, becaue running: \(workoutManager.running)")
             if !workoutManager.running {
                 workoutManager.startWorkout(workoutType: .highIntensityIntervalTraining)
             }
