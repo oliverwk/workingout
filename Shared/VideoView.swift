@@ -16,6 +16,8 @@ struct VideoView: View {
     )
     @StateObject var ringManager = RingManager()
     @State var barHidden = false
+    @State var barTitle = ""
+    
     let video: URL
     var player: AVPlayer
     var colors: [Color] = [Color.darkRed, Color.lightRed]
@@ -23,8 +25,8 @@ struct VideoView: View {
     init (video: URL) {
         self.video = video
         player = AVPlayer(url: video.absoluteURL)
+        self.barTitle = video.lastPathComponent
         player.volume = 0
-        
     }
     
     
@@ -33,19 +35,14 @@ struct VideoView: View {
             VideoPlayer(player: player) {
                 VStack(alignment: .trailing) {
                     HStack(alignment: .bottom) {
-                        ActivityView().environmentObject(ringManager)
+                        ActivityView(BarHidden: $barHidden).environmentObject(ringManager)
+                            .offset(y: ($barHidden.wrappedValue ? -25 : 0))
                         Spacer()
                         ActivityRingViewHealthKit(activitySummary: ringManager.HeahtlKitSummary())
-                            .frame(width: 100, height: 100, alignment: .center)
+                            .frame(width: 80, height: 80, alignment: .center)
                             .edgesIgnoringSafeArea(.all)
-                            .offset(y: -40)
-                        
-                        /*ZStack {
-                         //ActivityRingView(progress: $ringManager.kcal, colors: [Color.darkRed, Color.lightRed, Color.outlineRed], RingSize: 100, fullRing: 600.0).fixedSize()
-                         
-                         /*ActivityRingView(progress: $ringManager.KcalForRing, colors: [Color.darkRed, Color.lightRed, Color.outlineRed], RingSize: 100, fullRing: 600.0).fixedSize()
-                          ActivityRingView(progress: $ringManager.mins, colors: [Color.darkGreen, Color.lightGreen, Color.outlineGreen], RingSize: 62, fullRing: 30.0).fixedSize().padding().padding()*/
-                         }.background(.thinMaterial).cornerRadius(90).padding().padding()*/
+                            .offset(y: ($barHidden.wrappedValue ? -90 : -50))
+                            .padding()
                     }
                     Spacer()
                 }
@@ -56,6 +53,7 @@ struct VideoView: View {
                     ringManager.started = false
                     ringManager.timer.connect().cancel()
                     self.barHidden = false
+                    self.barTitle = self.video.lastPathComponent
                 } else {
                     player.play()
                     if ringManager.startedDate == nil {
@@ -64,13 +62,17 @@ struct VideoView: View {
                     logger.log("player resumed")
                     ringManager.started = true
                     self.barHidden = true
+                    self.barTitle = ""
                     ringManager.timer = Timer.publish(every: 1, on: .main, in: .common)
                     let canc = ringManager.timer.connect()
                     print("canc: \(canc)")
                     $ringManager.cancelTimer.wrappedValue = canc
                 }
             }
-        }.navigationTitle(Text(video.lastPathComponent)).navigationBarHidden(barHidden)
+        }.navigationTitle(barTitle)
+            .navigationBarBackButtonHidden($barHidden.wrappedValue)
+            .navigationBarHidden($barHidden.wrappedValue)
+            .edgesIgnoringSafeArea([($barHidden.wrappedValue ? .top : .bottom)])
     }
 }
 
@@ -78,9 +80,11 @@ struct VideoView: View {
 struct VideoView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!)
-                .previewInterfaceOrientation(.landscapeRight)
-                .previewDevice("iPad (9th generation)")
+            /*
+             VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!)
+             .previewInterfaceOrientation(.landscapeRight)
+             .previewDevice("iPad (9th generation)")
+             */
             VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!)
                 .previewInterfaceOrientation(.landscapeRight)
                 .previewDevice("iPhone 7")

@@ -20,7 +20,7 @@ struct ActivityView: View {
     @State var isAtMaxScale = false
     private let animation = Animation.easeInOut(duration: 1).repeatForever(autoreverses: true)
     private let maxScale: CGFloat = 1.2
-    
+    @Binding var BarHidden: Bool
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -53,17 +53,18 @@ struct ActivityView: View {
                     .fontWeight(.semibold)
                     .foregroundColor(Color(decimalRed: 230.0, green: 55.0, blue: 84.0))
             }
-        }.padding()
+        }   .padding()
             .background(.thinMaterial)
             .cornerRadius(16)
             .padding()
+//            .padding(.all, ($BarHidden.wrappedValue ? 0 : nil))
     }
 }
 
 struct ActivityView_Previews: PreviewProvider {
     static var ringManagers = RingManager()
     static var previews: some View {
-        ActivityView().preferredColorScheme(.dark)
+        ActivityView(BarHidden: .constant(false)).preferredColorScheme(.dark)
             .environmentObject(ringManagers)
             .onAppear {
                 ringManagers.kcal = 50

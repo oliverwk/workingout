@@ -18,7 +18,8 @@ class WorkoutManager: NSObject, ObservableObject {
 
     @Published var started: Bool? = false
     let LiveManager = SessionDelegater()
-    var lastSendData = HealthData(kcals: 0.0, mins: 0, heartRate: 0.0) // This is for coms between the hpone and watch
+    var lastSendData = HealthData(kcals: 0.0, mins: 0, heartRate: 0.0) // This is for coms between the phone and watch
+    
     override init() {
         super.init()
         if WCSession.isSupported() {
