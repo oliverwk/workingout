@@ -16,16 +16,16 @@ struct VideoView: View {
     )
     @StateObject var ringManager = RingManager()
     @State var barHidden = false
-    @State var barTitle = ""
+    @State var barTitle: String? = ""
     
     let video: URL
     var player: AVPlayer
     var colors: [Color] = [Color.darkRed, Color.lightRed]
     
-    init (video: URL) {
+    init (video: URL, title: String) {
         self.video = video
         player = AVPlayer(url: video.absoluteURL)
-        self.barTitle = video.lastPathComponent
+        self.barTitle = title
         player.volume = 0
     }
     
@@ -69,9 +69,10 @@ struct VideoView: View {
                     $ringManager.cancelTimer.wrappedValue = canc
                 }
             }
-        }.navigationTitle(barTitle)
+        }.navigationTitle(barTitle ?? "")
             .navigationBarBackButtonHidden($barHidden.wrappedValue)
             .navigationBarHidden($barHidden.wrappedValue)
+            .navigationBarTitleDisplayMode(.inline)
             .edgesIgnoringSafeArea([($barHidden.wrappedValue ? .top : .bottom)])
     }
 }
@@ -80,12 +81,12 @@ struct VideoView: View {
 struct VideoView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            /*
-             VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!)
+            
+            /*VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!, title: "WorkoutVideo-1.mp4")
              .previewInterfaceOrientation(.landscapeRight)
-             .previewDevice("iPad (9th generation)")
-             */
-            VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!)
+             .previewDevice("iPad (9th generation)")*/
+             
+            VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!, title: "WorkoutVideo-1.mp4")
                 .previewInterfaceOrientation(.landscapeRight)
                 .previewDevice("iPhone 7")
         }

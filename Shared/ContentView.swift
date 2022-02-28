@@ -16,7 +16,7 @@ struct ContentView: View {
         NavigationView {
             List {
                 ForEach(self.videos, id: \.self) { video in
-                    NavigationLink(destination: VideoView(video: Bundle.main.url(forResource: "Videos/\(video.split(separator: ".")[0])", withExtension: "mp4")!)) {
+                    NavigationLink(destination: VideoView(video: Bundle.main.url(forResource: "Videos/\(video.split(separator: ".")[0])", withExtension: "mp4")!, title: URL(fileURLWithPath: video).lastPathComponent)) {
                         HStack {
                             Text("\(URL(fileURLWithPath: video).lastPathComponent)")
                             Spacer()
