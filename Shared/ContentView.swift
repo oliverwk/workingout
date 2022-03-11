@@ -24,8 +24,8 @@ struct ContentView: View {
                                 .foregroundColor(.green)
                         }
                     }
-                }
-            }.navigationTitle("Workouts")
+                }.navigationTitle(Text("Workouts"))
+            }
         }
     }
 }
