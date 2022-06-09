@@ -23,6 +23,10 @@ struct VideoView: View {
     var player: AVPlayer
     var colors: [Color] = [Color.darkRed, Color.lightRed]
     var ViewIsExternalScreen: Bool
+    var timeObserverToken: Any?
+    @State var OldPlayState = false
+    @State var showSkipbutton = false
+    
     
     init (video: URL, title: String, ViewIsExternalScreen: Bool = false) {
         self.video = video
@@ -49,32 +53,81 @@ struct VideoView: View {
                         }
                         Spacer()
                     }
-                }
-                .onTapGesture {
-                    if !ViewIsExternalScreen {
-                        if player.isPlaying {
-                            player.pause()
-                            logger.log("player paused")
-                            ringManager.started = false
-                            ringManager.timer.connect().cancel()
-                            self.barHidden = false
-                            self.barTitle = self.video.lastPathComponent
-                        } else {
-                            player.play()
-                            if ringManager.startedDate == nil {
-                                ringManager.startedDate = Date()
+                }.overlay {
+                    HStack {
+                        Spacer()
+                        Button {
+                            print("skipping forward")
+                            let newtime = CMTimeGetSeconds((player.currentTime())) + 55
+                            if newtime < (CMTimeGetSeconds(player.currentItem!.duration) - 55) {
+                                player.seek(to: CMTimeMake(value: Int64(newtime*1000), timescale: 1000))
+                                logger.log("seeking to \(newtime.debugDescription)")
+                            } else {
+                                logger.log("\((CMTimeGetSeconds(player.currentItem!.duration) - 55)) is niet groter dan \(newtime)")
                             }
-                            logger.log("player resumed")
-                            ringManager.started = true
-                            self.barHidden = true
-                            self.barTitle = ""
-                            ringManager.timer = Timer.publish(every: 1, on: .main, in: .common)
-                            let canc = ringManager.timer.connect()
-                            print("canc: \(canc)")
-                            $ringManager.cancelTimer.wrappedValue = canc
+                        } label: {
+                            Image(systemName: "goforward")
                         }
+                        .foregroundColor(.black)
+                        .padding()
+                        .background(.white)
+                        .cornerRadius(40)
+                        .padding()
+                        .opacity(showSkipbutton ? 1 : 0)
                     }
                 }
+                
+                /*.gesture(TapGesture(count: 2).onEnded({ value in
+                 print("Hello double: ", value)
+                 if value.translation.width < 0 {
+                 // left
+                 let newtime = CMTimeGetSeconds((externalDisplayContent.player!.currentTime())) - 15
+                 if newtime < (CMTimeGetSeconds(externalDisplayContent.player!.currentItem!.duration) + 15) {
+                 externalDisplayContent.player?.seek(to: CMTimeMake(value: Int64(newtime*1000), timescale: 1000))
+                 logger.log("seeking to \(newtime.debugDescription)")
+                 } else {
+                 logger.log("\((CMTimeGetSeconds(externalDisplayContent.player!.currentItem!.duration) + 15)) is niet groter dan \(newtime)")
+                 }
+                 } else if value.translation.width > 0 {
+                 // right
+                 let newtime = CMTimeGetSeconds((externalDisplayContent.player!.currentTime())) + 15
+                 if newtime < (CMTimeGetSeconds(externalDisplayContent.player!.currentItem!.duration) - 15) {
+                 externalDisplayContent.player?.seek(to: CMTimeMake(value: Int64(newtime*1000), timescale: 1000))
+                 logger.log("seeking to \(newtime.debugDescription)")
+                 } else {
+                 logger.log("\((CMTimeGetSeconds(externalDisplayContent.player!.currentItem!.duration) - 15)) is niet groter dan \(newtime)")
+                 }
+                 }
+                 }).exclusively(before: TapGesture().onEnded({
+                 print("Hello single")
+                 }))
+                 )*/
+                
+                /*.onTapGesture {
+                 if !ViewIsExternalScreen {
+                 if player.isPlaying {
+                 player.pause()
+                 logger.log("player paused")
+                 ringManager.started = false
+                 ringManager.timer.connect().cancel()
+                 self.barHidden = false
+                 self.barTitle = self.video.lastPathComponent
+                 } else {
+                 player.play()
+                 if ringManager.startedDate == nil {
+                 ringManager.startedDate = Date()
+                 }
+                 logger.log("player resumed")
+                 ringManager.started = true
+                 self.barHidden = true
+                 self.barTitle = ""
+                 ringManager.timer = Timer.publish(every: 1, on: .main, in: .common)
+                 let canc = ringManager.timer.connect()
+                 print("canc: \(canc)")
+                 $ringManager.cancelTimer.wrappedValue = canc
+                 }
+                 }
+                 }*/
                 
             } else {
                 VStack {
@@ -134,10 +187,81 @@ struct VideoView: View {
                     logger.log("setting the videoFile to: \(self.video.lastPathComponent)")
                     externalDisplayContent.player?.replaceCurrentItem(with: AVPlayerItem(url: self.video))
                 }
+                if !externalDisplayContent.isShowingOnExternalDisplay {
+                    self.barTitle = self.video.lastPathComponent
+                    var currentTime = CMTime.zero
+                    var times = [NSValue]()
+                    
+                    // if is first thing. Add 15 seconds info
+                    var interval = 50
+                    var beginTime = 15
+                    
+                    switch self.barTitle {
+                    case "WorkoutVideo-1.mp4":
+                        interval = 50
+                    case "WorkoutVideo-2.mp4":
+                        interval = 50
+                        beginTime = 250
+                    case "WorkoutVideo-3.mp4":
+                        beginTime = 270
+                        interval = 50
+                    default:
+                        beginTime = 15
+                    }
+                    
+                    currentTime = currentTime + CMTime(value: CMTimeValue(beginTime), timescale: currentTime.timescale)
+                    
+                    // Calculate boundary times
+                    while currentTime < self.player.currentItem!.duration {
+                        currentTime = currentTime + CMTime(value: CMTimeValue(interval), timescale: currentTime.timescale)
+                        print("currentTime: \(currentTime)")
+                        times.append(NSValue(time:currentTime))
+                    }
+                    
+                    
+                    player.addBoundaryTimeObserver(forTimes: times, queue: .main) {
+                        print("add skip button for 10 seconds every 50 seconds")
+                        showSkipbutton = true
+                        // Wait ten seconds to not show it
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+                            showSkipbutton = false
+                        }
+                    }
+                    
+                    let timeScale = CMTimeScale(NSEC_PER_SEC)
+                    let time = CMTime(seconds: 0.5, preferredTimescale: timeScale)
+                    
+                    player.addPeriodicTimeObserver(forInterval: time, queue: .main) { time in
+                        // update player transport UI
+                        if OldPlayState != player.isPlaying {
+                            self.OldPlayState = player.isPlaying
+                            if player.isPlaying {
+                                if ringManager.startedDate == nil {
+                                    ringManager.startedDate = Date()
+                                }
+                                logger.log("player resumed")
+                                ringManager.started = true
+                                self.barHidden = true
+                                self.barTitle = ""
+                                ringManager.timer = Timer.publish(every: 1, on: .main, in: .common)
+                                let canc = ringManager.timer.connect()
+                                print("canc: \(canc)")
+                                $ringManager.cancelTimer.wrappedValue = canc
+                            } else {
+                                logger.log("player paused")
+                                ringManager.started = false
+                                ringManager.timer.connect().cancel()
+                                self.barHidden = false
+                                self.barTitle = self.video.lastPathComponent
+                            }
+                        }
+                    }
+                }
                 
                 if ViewIsExternalScreen && externalDisplayContent.isShowingOnExternalDisplay {
                     externalDisplayContent.player = player
                 }
+                
             }
     }
 }

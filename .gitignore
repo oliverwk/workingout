@@ -1,3 +1,5 @@
+tmp/
+tmp/*
 Shared/Videos/*
 Shared/Videos/WorkoutVideo-1.mp4
 Shared/Videos/WorkoutVideo-2.mp4
