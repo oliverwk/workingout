@@ -89,67 +89,78 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
             session.delegate = self
             session.activate()
         } else {
-            logger.log("No watch connction")
+            logger.log("No watch connection")
         }
         
+        Task(priority: .high) {
+            await GetHealthData()
+        }
+        
+    }
+    
+    
+    
+    func GetHealthData() async -> Void {
         if HKHealthStore.isHealthDataAvailable() {
             let allTypes = Set([HKObjectType.workoutType(), HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!, HKObjectType.quantityType(forIdentifier: .heartRate)!])
             let allTypesAndMinutes = Set([HKObjectType.workoutType(), HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!, HKObjectType.quantityType(forIdentifier: .heartRate)!, HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!])
-            healthStore.requestAuthorization(toShare: allTypes, read: allTypesAndMinutes) { (success, error) in
-                self.CanGetHeathKitData = success
-                if !success {
-                    logger.error("Error with getting healthkit things \(error.debugDescription, privacy: .public)")
-                    // Handle the error here.
-                } else {
-                    self.GetHealthKitStatistics(type: HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!) { quantity, stat in
-                        let value = quantity.doubleValue(for: HKUnit.kilocalorie())
-                        logger.log("kcals from healthkit: \(value, privacy: .public) at date \(stat.startDate, privacy: .public)")
-                        DispatchQueue.main.async {
-                            self.kcal = CGFloat(value)
-                            self.KcalForRing = CGFloat(value)
-                            self.DataFromWatch = false
-                        }
-                    }
-                    self.GetHealthKitStatistics(type: HKQuantityType.quantityType(forIdentifier: .appleExerciseTime)!) { quantity, stat in
-                        let value = quantity.doubleValue(for: HKUnit.minute())
-                        logger.log("mins from healthkit: \(value, privacy: .public) at date \(stat.startDate, privacy: .public)")
-                        DispatchQueue.main.async {
-                            self.mins = CGFloat(value)
-                            self.MinsForRing = CGFloat(value)
-                            self.DataFromWatch = false
-                        }
-                    }
-                    self.GetHealthKitSample(sampleType: HKQuantityType.quantityType(forIdentifier: .heartRate)!) { heartreate in
-                        logger.log("heartreate from healthkit: \(heartreate, privacy: .public)")
-                        DispatchQueue.main.async {
-                            self.heartRate = heartreate
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    // MARK: - HealthKit Helpers
-    
-    func GetHealthKitSample(sampleType: HKQuantityType, SampleDone: @escaping (_ sample: Double) -> Void) {
-        let mostRecentPredicate = HKQuery.predicateForSamples(withStart: Date().today, end: Date(timeIntervalSince1970: (Date().timeIntervalSince1970 + 86400)), options: .strictEndDate)
-        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
-        let sampleQuery = HKSampleQuery(sampleType: sampleType, predicate: mostRecentPredicate, limit: 1, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
-            guard let samples = samples, let mostRecentSample = samples.first as? HKQuantitySample else {
-                if let error = error {
-                    logger.log("the err: \(error.localizedDescription, privacy: .public), couldn't get a smaple")
-                }
-                logger.log("Things didn't work: \(String(describing: samples), privacy: .public)")
+            do {
+                try await healthStore.requestAuthorization(toShare: allTypes, read: allTypesAndMinutes)
+                self.CanGetHeathKitData = true
+                logger.log("Got the health authorization")
+            } catch let error {
+                logger.error("Error with getting healthkit authorization \(error.localizedDescription, privacy: .public)")
+                self.CanGetHeathKitData = false
+                // Handle the error here.
                 return
             }
-            let heartreate = mostRecentSample.quantity.doubleValue(for: (sampleType == HKSampleType.quantityType(forIdentifier: .heartRate)! ? HKUnit(from: "count/min") : HKUnit.minute()))
-            SampleDone(heartreate)
+            
+            let (calorie, caloriesStats) = await GetHealthKitStatistics(type: HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!)
+            let calorieEnergy = calorie.doubleValue(for: HKUnit.kilocalorie())
+            logger.log("kcals from healthkit: \(calorieEnergy, privacy: .public) at date \(caloriesStats.startDate, privacy: .public)")
+            DispatchQueue.main.async {
+                self.kcal = CGFloat(calorieEnergy)
+                self.KcalForRing = CGFloat(calorieEnergy)
+                self.DataFromWatch = false
+            }
+
+            let (minutes, MinutesStats) = await GetHealthKitStatistics(type: HKQuantityType.quantityType(forIdentifier: .appleExerciseTime)!)
+            let minutesExercise = minutes.doubleValue(for: HKUnit.minute())
+            logger.log("minutes from healthkit: \(minutesExercise, privacy: .public) at date \(MinutesStats.startDate, privacy: .public)")
+            DispatchQueue.main.async {
+                self.mins = CGFloat(minutesExercise)
+                self.MinsForRing = CGFloat(minutesExercise)
+                self.DataFromWatch = false
+            }
+            
+            let heartRate = await GetHealthKitSample(sampleType: HKQuantityType.quantityType(forIdentifier: .heartRate)!)
+            logger.log("heartRate from healthkit: \(heartRate, privacy: .public)")
+            DispatchQueue.main.async { self.heartRate = heartRate }
         }
-        HKHealthStore().execute(sampleQuery)
+    }
+    // MARK: - HealthKit Helpers
+    
+    func GetHealthKitSample(sampleType: HKQuantityType) async -> Double {
+        let mostRecentPredicate = HKQuery.predicateForSamples(withStart: Date().today, end: Date(timeIntervalSince1970: (Date().timeIntervalSince1970 + 86400)), options: .strictEndDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+        return await withCheckedContinuation { continuation in
+            let sampleQuery = HKSampleQuery(sampleType: sampleType, predicate: mostRecentPredicate, limit: 1, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+                guard let samples1 = samples, let mostRecentSample = samples1.first as? HKQuantitySample else {
+                    if let error = error {
+                        logger.log("couldn't get a \(sampleType.debugDescription) sample: \(error.localizedDescription, privacy: .public)")
+                    }
+                    logger.log("While getting the \(sampleType.debugDescription) sample coulnd't convert the value: \(String(describing: samples), privacy: .public)")
+                    return
+                }
+                let heartreate = mostRecentSample.quantity.doubleValue(for: (sampleType == HKSampleType.quantityType(forIdentifier: .heartRate)! ? HKUnit(from: "count/min") : HKUnit.minute()))
+                continuation.resume(returning: heartreate)
+            }
+            healthStore.execute(sampleQuery)
+        }
     }
     
-    func GetHealthKitStatistics(type: HKQuantityType, SampleDone: @escaping (_ sample: HKQuantity, _ statistic: HKStatistics) -> Void) {
+    
+    func GetHealthKitStatistics(type: HKQuantityType) async -> (sample: HKQuantity, statistic: HKStatistics) {
         let lastDay = Date().today!
         var interval = DateComponents()
         interval.day = 1
@@ -157,24 +168,26 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
         let query = HKStatisticsCollectionQuery(quantityType: type, quantitySamplePredicate: nil, options: .cumulativeSum, anchorDate: lastDay, intervalComponents: interval)
         
         // Set the results handler
-        query.initialResultsHandler = {
-            query, results, error in
-            
-            guard let statsCollection = results else {
-                // Perform proper error handling here
-                logger.error("*** An error occurred while calculating the statistics: \(String(describing: error?.localizedDescription), privacy: .public) ***")
-                return
-            }
-            let endDate = Date()
-            statsCollection.enumerateStatistics(from: lastDay, to: endDate, with: { (statistics, stop) in
-                if let quantity = statistics.sumQuantity() {
-                    SampleDone(quantity, statistics)
-                } else {
-                    logger.log("didn't find any stats about \(type.debugDescription, privacy: .public)")
+        return await withCheckedContinuation { continuation in
+            query.initialResultsHandler = {
+                query1, results, error1 in
+                
+                guard let statsCollection = results else {
+                    // Perform proper error handling here
+                    logger.error("*** An error occurred while calculating the statistics: \(String(describing: error1?.localizedDescription), privacy: .public) ***")
+                    return
                 }
-            })
+                let endDate = Date()
+                statsCollection.enumerateStatistics(from: lastDay, to: endDate, with: { (statistics, stop) in
+                    if let quantity = statistics.sumQuantity() {
+                        continuation.resume(returning: (quantity, statistics))
+                    } else {
+                        logger.log("Didn't find any stats about \(type.debugDescription, privacy: .public)")
+                    }
+                })
+            }
+            healthStore.execute(query)
         }
-        healthStore.execute(query)
     }
     
     func HeahtlKitSummary() -> HKActivitySummary {
