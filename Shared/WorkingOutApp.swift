@@ -67,8 +67,11 @@ struct WorkingOutApp: App {
 }
 
 class ExternalDisplayContent: ObservableObject, CustomDebugStringConvertible {
+    /// The video file name with a .mp4
     @Published var videoFile = "annasVideo.mp4"
+    /// if the current view is on the external screen
     @Published var isShowingOnExternalDisplay = false
+    /// The play wich plays a video on the external screen
     @Published var player: AVPlayer?
     var debugDescription: String {
         return "videoFile: \(videoFile), isShowingOnExternalDisplay: \(isShowingOnExternalDisplay) player: \(player.debugDescription)"

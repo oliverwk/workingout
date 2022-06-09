@@ -76,59 +76,6 @@ struct VideoView: View {
                         .opacity(showSkipbutton ? 1 : 0)
                     }
                 }
-                
-                /*.gesture(TapGesture(count: 2).onEnded({ value in
-                 print("Hello double: ", value)
-                 if value.translation.width < 0 {
-                 // left
-                 let newtime = CMTimeGetSeconds((externalDisplayContent.player!.currentTime())) - 15
-                 if newtime < (CMTimeGetSeconds(externalDisplayContent.player!.currentItem!.duration) + 15) {
-                 externalDisplayContent.player?.seek(to: CMTimeMake(value: Int64(newtime*1000), timescale: 1000))
-                 logger.log("seeking to \(newtime.debugDescription)")
-                 } else {
-                 logger.log("\((CMTimeGetSeconds(externalDisplayContent.player!.currentItem!.duration) + 15)) is niet groter dan \(newtime)")
-                 }
-                 } else if value.translation.width > 0 {
-                 // right
-                 let newtime = CMTimeGetSeconds((externalDisplayContent.player!.currentTime())) + 15
-                 if newtime < (CMTimeGetSeconds(externalDisplayContent.player!.currentItem!.duration) - 15) {
-                 externalDisplayContent.player?.seek(to: CMTimeMake(value: Int64(newtime*1000), timescale: 1000))
-                 logger.log("seeking to \(newtime.debugDescription)")
-                 } else {
-                 logger.log("\((CMTimeGetSeconds(externalDisplayContent.player!.currentItem!.duration) - 15)) is niet groter dan \(newtime)")
-                 }
-                 }
-                 }).exclusively(before: TapGesture().onEnded({
-                 print("Hello single")
-                 }))
-                 )*/
-                
-                /*.onTapGesture {
-                 if !ViewIsExternalScreen {
-                 if player.isPlaying {
-                 player.pause()
-                 logger.log("player paused")
-                 ringManager.started = false
-                 ringManager.timer.connect().cancel()
-                 self.barHidden = false
-                 self.barTitle = self.video.lastPathComponent
-                 } else {
-                 player.play()
-                 if ringManager.startedDate == nil {
-                 ringManager.startedDate = Date()
-                 }
-                 logger.log("player resumed")
-                 ringManager.started = true
-                 self.barHidden = true
-                 self.barTitle = ""
-                 ringManager.timer = Timer.publish(every: 1, on: .main, in: .common)
-                 let canc = ringManager.timer.connect()
-                 print("canc: \(canc)")
-                 $ringManager.cancelTimer.wrappedValue = canc
-                 }
-                 }
-                 }*/
-                
             } else {
                 VStack {
                     ActivityView(BarHidden: $barHidden).environmentObject(ringManager)
@@ -268,12 +215,16 @@ struct VideoView: View {
 
 
 struct VideoView_Previews: PreviewProvider {
+    static let externalDisplayContent = ExternalDisplayContent()
     static var previews: some View {
         Group {
-            
-            /*VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!, title: "WorkoutVideo-1.mp4")
+            VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!, title: "WorkoutVideo-1.mp4", ViewIsExternalScreen: true)
+             .environmentObject(externalDisplayContent)
              .previewInterfaceOrientation(.landscapeRight)
-             .previewDevice("iPad (9th generation)")*/
+             .previewDevice("iPad (9th generation)")
+             .onAppear {
+                 externalDisplayContent.isShowingOnExternalDisplay = true
+             }
             
             VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!, title: "WorkoutVideo-1.mp4")
                 .previewInterfaceOrientation(.landscapeRight)
