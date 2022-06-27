@@ -34,6 +34,7 @@ struct VideoView: View {
         self.ViewIsExternalScreen = ViewIsExternalScreen
         self.barTitle = title
         player.volume = 0
+        player.externalPlaybackVideoGravity = .resizeAspectFill
     }
     
     var body: some View {
@@ -46,14 +47,14 @@ struct VideoView: View {
                                 .offset(y: ($barHidden.wrappedValue ? -25 : 0))
                             Spacer()
                             ActivityRingViewHealthKit(activitySummary: ringManager.HeahtlKitSummary())
-                                .frame(width: 80, height: 80, alignment: .center)
+                                .frame(width: 70, height: 70, alignment: .center)
                                 .edgesIgnoringSafeArea(.all)
-                                .offset(y: ($barHidden.wrappedValue ? -90 : -50))
-                                .padding()
+                                .offset(y: -95)
+                                .padding(.vertical, 20)
                         }
                         Spacer()
                     }
-                }.overlay {
+                }.ignoresSafeArea(SafeAreaRegions.all, edges: .horizontal).ignoresSafeArea(SafeAreaRegions.all, edges: .bottom).overlay {
                     HStack {
                         Spacer()
                         Button {

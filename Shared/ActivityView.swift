@@ -54,7 +54,7 @@ struct ActivityView: View {
                     .foregroundColor(Color(decimalRed: 230.0, green: 55.0, blue: 84.0))
             }
         }   .padding()
-            .background(.thinMaterial)
+            .background(.ultraThinMaterial)
             .cornerRadius(16)
             .padding()
 //            .padding(.all, ($BarHidden.wrappedValue ? 0 : nil))
