@@ -15,6 +15,8 @@ struct VideoView: View {
         category: "VideoView"
     )
     @StateObject var ringManager = RingManager()
+    var t = RepeatingTimer(timeInterval: 30)
+    
     @State var barHidden = false
     @State var barTitle: String? = ""
     @EnvironmentObject var externalDisplayContent: ExternalDisplayContent
@@ -35,6 +37,33 @@ struct VideoView: View {
         self.barTitle = title
         player.volume = 0
         player.externalPlaybackVideoGravity = .resizeAspectFill
+        
+        player.currentItem?.externalMetadata = AddVideoMetaData()
+
+    }
+    
+    func AddVideoMetaData() -> [AVMutableMetadataItem] {
+        let titleItem = AVMutableMetadataItem()
+        titleItem.identifier = .commonIdentifierTitle
+        titleItem.value = "WorkingOut \((self.barTitle == "annasVideo.mp4" ? "annasVideo    .mp4" :  self.barTitle!).prefix(14))" as NSString
+        
+        let subtitleItem = AVMutableMetadataItem()
+        subtitleItem.identifier = .iTunesMetadataTrackSubTitle
+        subtitleItem.value = "GrowingAnnanas" as NSString
+
+        let creatorItem = AVMutableMetadataItem()
+        subtitleItem.identifier = .commonIdentifierCreator
+        subtitleItem.value = "GrowingAnnanas" as NSString
+
+        let langueageItem = AVMutableMetadataItem()
+        subtitleItem.identifier = .commonIdentifierLanguage
+        subtitleItem.value = "English" as NSString
+        
+        let infoItem = AVMutableMetadataItem()
+        infoItem.identifier = .commonIdentifierDescription
+        infoItem.value = "In deze video van (zo alng duurt hij) minuten gaat anna een HIIT workout doen. High Intensity Interval Training. Dit is goed voor je gezondheid en ringen" as NSString // Descriptive info paragraph
+        
+        return [titleItem, subtitleItem, creatorItem, langueageItem, infoItem]
     }
     
     var body: some View {
@@ -129,6 +158,14 @@ struct VideoView: View {
             .navigationBarTitleDisplayMode(.inline)
             .edgesIgnoringSafeArea([($barHidden.wrappedValue ? .top : .bottom)])
             .onAppear {
+                t.eventHandler = {
+                    logger.log("Timer Fired, time to check for new health data")
+                    Task(priority: .medium) {
+                        await ringManager.GetHealthData()
+                    }
+                }
+            }
+            .onAppear {
                 logger.log("externalDisplayContent: \(externalDisplayContent.debugDescription) View: \(ViewIsExternalScreen)")
                 if !ViewIsExternalScreen && externalDisplayContent.isShowingOnExternalDisplay {
                     externalDisplayContent.videoFile = self.video.lastPathComponent
@@ -146,15 +183,26 @@ struct VideoView: View {
                     
                     switch self.barTitle {
                     case "WorkoutVideo-1.mp4":
-                        interval = 50
+                        beginTime = 5
+                        interval = 60
                     case "WorkoutVideo-2.mp4":
-                        interval = 50
-                        beginTime = 250
+                        beginTime = 285
+                        interval = 60
                     case "WorkoutVideo-3.mp4":
                         beginTime = 270
                         interval = 50
+                    case "WorkoutVideo-4.mp4":
+                        beginTime = 336
+                        interval = 50
+                    case "WorkoutVideo-5.mp4":
+                        beginTime = 336
+                        interval = 50
+                    case "WorkoutVideo-6.mp4":
+                        beginTime = 295
+                        interval = 50
                     default:
-                        beginTime = 15
+                        interval = 1000
+                        beginTime = Int(CMTimeGetSeconds(player.currentItem?.duration ?? CMTime.zero))
                     }
                     
                     currentTime = currentTime + CMTime(value: CMTimeValue(beginTime), timescale: currentTime.timescale)
@@ -220,12 +268,12 @@ struct VideoView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!, title: "WorkoutVideo-1.mp4", ViewIsExternalScreen: true)
-             .environmentObject(externalDisplayContent)
-             .previewInterfaceOrientation(.landscapeRight)
-             .previewDevice("iPad (9th generation)")
-             .onAppear {
-                 externalDisplayContent.isShowingOnExternalDisplay = true
-             }
+                .environmentObject(externalDisplayContent)
+                .previewInterfaceOrientation(.landscapeRight)
+                .previewDevice("iPad (9th generation)")
+                .onAppear {
+                    externalDisplayContent.isShowingOnExternalDisplay = true
+                }
             
             VideoView(video: Bundle.main.url(forResource: "Videos/WorkoutVideo-1", withExtension: "mp4")!, title: "WorkoutVideo-1.mp4")
                 .previewInterfaceOrientation(.landscapeRight)

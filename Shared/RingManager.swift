@@ -100,11 +100,12 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
     
     
     
-    func GetHealthData() async -> Void {
+    func GetHealthData() async {
         if HKHealthStore.isHealthDataAvailable() {
             let allTypes = Set([HKObjectType.workoutType(), HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!, HKObjectType.quantityType(forIdentifier: .heartRate)!])
             let allTypesAndMinutes = Set([HKObjectType.workoutType(), HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!, HKObjectType.quantityType(forIdentifier: .heartRate)!, HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!])
             do {
+                // TODO: maybe add a check to see if there is an auth if not then reqeust auth if user prompt is always up authorizationStatus
                 try await healthStore.requestAuthorization(toShare: allTypes, read: allTypesAndMinutes)
                 self.CanGetHeathKitData = true
                 logger.log("Got the health authorization")
@@ -116,26 +117,33 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
             }
             
             let (calorie, caloriesStats) = await GetHealthKitStatistics(type: HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!)
-            let calorieEnergy = calorie.doubleValue(for: HKUnit.kilocalorie())
-            logger.log("kcals from healthkit: \(calorieEnergy, privacy: .public) at date \(caloriesStats.startDate, privacy: .public)")
-            DispatchQueue.main.async {
-                self.kcal = CGFloat(calorieEnergy)
-                self.KcalForRing = CGFloat(calorieEnergy)
-                self.DataFromWatch = false
-            }
-
-            let (minutes, MinutesStats) = await GetHealthKitStatistics(type: HKQuantityType.quantityType(forIdentifier: .appleExerciseTime)!)
-            let minutesExercise = minutes.doubleValue(for: HKUnit.minute())
-            logger.log("minutes from healthkit: \(minutesExercise, privacy: .public) at date \(MinutesStats.startDate, privacy: .public)")
-            DispatchQueue.main.async {
-                self.mins = CGFloat(minutesExercise)
-                self.MinsForRing = CGFloat(minutesExercise)
-                self.DataFromWatch = false
+            let calorieEnergy = calorie?.doubleValue(for: HKUnit.kilocalorie())
+            logger.log("kcals from healthkit: \(calorieEnergy ?? 0, privacy: .public) at date \(caloriesStats?.startDate ?? Date(timeIntervalSince1970: 0), privacy: .public)")
+            if calorie != nil && caloriesStats != nil {
+                DispatchQueue.main.async {
+                    self.kcal = CGFloat(calorieEnergy!)
+                    self.KcalForRing = CGFloat(calorieEnergy!)
+                    self.DataFromWatch = false
+                }
             }
             
+            let (minutes, MinutesStats) = await GetHealthKitStatistics(type: HKQuantityType.quantityType(forIdentifier: .appleExerciseTime)!)
+            let minutesExercise = minutes?.doubleValue(for: HKUnit.minute())
+            logger.log("minutes from healthkit: \(minutesExercise ?? 0, privacy: .public) at date \(MinutesStats?.startDate ?? Date(timeIntervalSince1970: 0), privacy: .public)")
+            if minutes != nil && MinutesStats != nil {
+                DispatchQueue.main.async {
+                    self.mins = CGFloat(minutesExercise!)
+                    self.MinsForRing = CGFloat(minutesExercise!)
+                    self.DataFromWatch = false
+                }
+            }
             let heartRate = await GetHealthKitSample(sampleType: HKQuantityType.quantityType(forIdentifier: .heartRate)!)
             logger.log("heartRate from healthkit: \(heartRate, privacy: .public)")
             DispatchQueue.main.async { self.heartRate = heartRate }
+            return
+        } else {
+            logger.log("No Healthkit Data is available")
+            return
         }
     }
     // MARK: - HealthKit Helpers
@@ -160,7 +168,7 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
     }
     
     
-    func GetHealthKitStatistics(type: HKQuantityType) async -> (sample: HKQuantity, statistic: HKStatistics) {
+    func GetHealthKitStatistics(type: HKQuantityType) async -> (sample: HKQuantity?, statistic: HKStatistics?) {
         let lastDay = Date().today!
         var interval = DateComponents()
         interval.day = 1
@@ -175,14 +183,17 @@ class RingManager: NSObject, ObservableObject, WCSessionDelegate {
                 guard let statsCollection = results else {
                     // Perform proper error handling here
                     logger.error("*** An error occurred while calculating the statistics: \(String(describing: error1?.localizedDescription), privacy: .public) ***")
+                    continuation.resume(returning: (nil, nil))
                     return
                 }
+                
                 let endDate = Date()
                 statsCollection.enumerateStatistics(from: lastDay, to: endDate, with: { (statistics, stop) in
                     if let quantity = statistics.sumQuantity() {
                         continuation.resume(returning: (quantity, statistics))
                     } else {
                         logger.log("Didn't find any stats about \(type.debugDescription, privacy: .public)")
+                        continuation.resume(returning: (nil, nil))
                     }
                 })
             }

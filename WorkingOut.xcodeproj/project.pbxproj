@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E61AC0E328758488000C4380 /* BackgroundRefreshRings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E61AC0E228758488000C4380 /* BackgroundRefreshRings.swift */; };
+		E61AC0E428758488000C4380 /* BackgroundRefreshRings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E61AC0E228758488000C4380 /* BackgroundRefreshRings.swift */; };
 		E626FB4B279D814300004422 /* WorkingOutApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E626FB3B279D814200004422 /* WorkingOutApp.swift */; };
 		E626FB4C279D814300004422 /* WorkingOutApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E626FB3B279D814200004422 /* WorkingOutApp.swift */; };
 		E626FB4D279D814300004422 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E626FB3C279D814200004422 /* ContentView.swift */; };
@@ -88,6 +90,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E61AC0E228758488000C4380 /* BackgroundRefreshRings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundRefreshRings.swift; sourceTree = "<group>"; };
 		E626FB3B279D814200004422 /* WorkingOutApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkingOutApp.swift; sourceTree = "<group>"; };
 		E626FB3C279D814200004422 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E626FB3D279D814300004422 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -174,6 +177,7 @@
 				E626FB5F279D84F600004422 /* ActivityView.swift */,
 				E65BBBFF279D9E7700AE47B9 /* RingManager.swift */,
 				E64F82C327AA9C06001D1112 /* Helpers.swift */,
+				E61AC0E228758488000C4380 /* BackgroundRefreshRings.swift */,
 				E626FB59279D84A100004422 /* Videos */,
 				E626FB3D279D814300004422 /* Assets.xcassets */,
 			);
@@ -426,6 +430,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E6CD041327AA7F3D00B132CD /* ActivityRingViewHealthKit.swift in Sources */,
+				E61AC0E328758488000C4380 /* BackgroundRefreshRings.swift in Sources */,
 				E64F82C427AA9C06001D1112 /* Helpers.swift in Sources */,
 				E626FB5D279D84B900004422 /* VideoView.swift in Sources */,
 				E626FB60279D84F600004422 /* ActivityView.swift in Sources */,
@@ -441,6 +446,7 @@
 			files = (
 				E6CD041427AA7F3D00B132CD /* ActivityRingViewHealthKit.swift in Sources */,
 				E64F82C527AA9C06001D1112 /* Helpers.swift in Sources */,
+				E61AC0E428758488000C4380 /* BackgroundRefreshRings.swift in Sources */,
 				E626FB5E279D84B900004422 /* VideoView.swift in Sources */,
 				E626FB61279D84F600004422 /* ActivityView.swift in Sources */,
 				E64F82C727AA9C51001D1112 /* ActivityRingViewHealthKitMacOs.swift in Sources */,
