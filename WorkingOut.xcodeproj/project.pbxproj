@@ -42,6 +42,10 @@
 		E65BBC06279DA31D00AE47B9 /* SessionDelegater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E65BBC05279DA31D00AE47B9 /* SessionDelegater.swift */; };
 		E65BBC0A279DA63800AE47B9 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E65BBC09279DA63800AE47B9 /* HealthKit.framework */; };
 		E66E619D279F535D00FACD44 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E66E619C279F535D00FACD44 /* HealthKit.framework */; };
+		E682E08628802A4B001B9F55 /* Zeilview.swift in Sources */ = {isa = PBXBuildFile; fileRef = E682E08528802A4B001B9F55 /* Zeilview.swift */; };
+		E682E088288043D6001B9F55 /* ZeilHealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E682E087288043D6001B9F55 /* ZeilHealthManager.swift */; };
+		E682E08B288044A3001B9F55 /* ZeilDagActiviteitenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E682E08A288044A3001B9F55 /* ZeilDagActiviteitenView.swift */; };
+		E682E08D28805076001B9F55 /* Dagdeel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E682E08C28805076001B9F55 /* Dagdeel.swift */; };
 		E6CD041327AA7F3D00B132CD /* ActivityRingViewHealthKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6CD041227AA7F3D00B132CD /* ActivityRingViewHealthKit.swift */; };
 		E6CD041427AA7F3D00B132CD /* ActivityRingViewHealthKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6CD041227AA7F3D00B132CD /* ActivityRingViewHealthKit.swift */; };
 		E6D9CE4727B2D391007FE045 /* CongratsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D9CE4627B2D391007FE045 /* CongratsView.swift */; };
@@ -123,6 +127,10 @@
 		E65BBC09279DA63800AE47B9 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS8.3.sdk/System/Library/Frameworks/HealthKit.framework; sourceTree = DEVELOPER_DIR; };
 		E66E619B279F535C00FACD44 /* WorkingOut (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "WorkingOut (iOS).entitlements"; sourceTree = "<group>"; };
 		E66E619C279F535D00FACD44 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/System/Library/Frameworks/HealthKit.framework; sourceTree = DEVELOPER_DIR; };
+		E682E08528802A4B001B9F55 /* Zeilview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zeilview.swift; sourceTree = "<group>"; };
+		E682E087288043D6001B9F55 /* ZeilHealthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZeilHealthManager.swift; sourceTree = "<group>"; };
+		E682E08A288044A3001B9F55 /* ZeilDagActiviteitenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZeilDagActiviteitenView.swift; sourceTree = "<group>"; };
+		E682E08C28805076001B9F55 /* Dagdeel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dagdeel.swift; sourceTree = "<group>"; };
 		E6CD041227AA7F3D00B132CD /* ActivityRingViewHealthKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRingViewHealthKit.swift; sourceTree = "<group>"; };
 		E6D9CE4627B2D391007FE045 /* CongratsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CongratsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -178,6 +186,7 @@
 				E65BBBFF279D9E7700AE47B9 /* RingManager.swift */,
 				E64F82C327AA9C06001D1112 /* Helpers.swift */,
 				E61AC0E228758488000C4380 /* BackgroundRefreshRings.swift */,
+				E682E08928804462001B9F55 /* Zeilen */,
 				E626FB59279D84A100004422 /* Videos */,
 				E626FB3D279D814300004422 /* Assets.xcassets */,
 			);
@@ -242,6 +251,17 @@
 				E65BBC09279DA63800AE47B9 /* HealthKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E682E08928804462001B9F55 /* Zeilen */ = {
+			isa = PBXGroup;
+			children = (
+				E682E08528802A4B001B9F55 /* Zeilview.swift */,
+				E682E08A288044A3001B9F55 /* ZeilDagActiviteitenView.swift */,
+				E682E087288043D6001B9F55 /* ZeilHealthManager.swift */,
+				E682E08C28805076001B9F55 /* Dagdeel.swift */,
+			);
+			path = Zeilen;
 			sourceTree = "<group>";
 		};
 		E6FA13B627A3018B00E808A4 /* coms */ = {
@@ -429,13 +449,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E682E08B288044A3001B9F55 /* ZeilDagActiviteitenView.swift in Sources */,
 				E6CD041327AA7F3D00B132CD /* ActivityRingViewHealthKit.swift in Sources */,
+				E682E088288043D6001B9F55 /* ZeilHealthManager.swift in Sources */,
 				E61AC0E328758488000C4380 /* BackgroundRefreshRings.swift in Sources */,
 				E64F82C427AA9C06001D1112 /* Helpers.swift in Sources */,
 				E626FB5D279D84B900004422 /* VideoView.swift in Sources */,
+				E682E08D28805076001B9F55 /* Dagdeel.swift in Sources */,
 				E626FB60279D84F600004422 /* ActivityView.swift in Sources */,
 				E626FB4D279D814300004422 /* ContentView.swift in Sources */,
 				E626FB4B279D814300004422 /* WorkingOutApp.swift in Sources */,
+				E682E08628802A4B001B9F55 /* Zeilview.swift in Sources */,
 				E65BBC01279D9E7A00AE47B9 /* RingManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

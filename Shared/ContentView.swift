@@ -27,6 +27,9 @@ struct ContentView: View {
                         }
                     }
                 }.navigationTitle(Text("Workouts"))
+                NavigationLink("Zeilen") {
+                    ZeilView()
+                }
             }
         }
     }

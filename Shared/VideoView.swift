@@ -39,7 +39,7 @@ struct VideoView: View {
         player.externalPlaybackVideoGravity = .resizeAspectFill
         
         player.currentItem?.externalMetadata = AddVideoMetaData()
-
+//        player.speeds = []
     }
     
     func AddVideoMetaData() -> [AVMutableMetadataItem] {
