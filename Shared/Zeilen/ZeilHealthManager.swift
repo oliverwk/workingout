@@ -7,6 +7,7 @@
 
 import HealthKit
 import os.log
+import CoreLocation
 
 class ZeilHealthManager: ObservableObject {
     let logger = Logger(
@@ -24,7 +25,7 @@ class ZeilHealthManager: ObservableObject {
         
         var sail: HKWorkout
         if activiteitDagDeel.AfstandAfgelegd != 0 {
-            let distance = HKQuantity(unit: HKUnit.meter(), doubleValue: (activiteitDagDeel.AfstandAfgelegd*1000*1000))
+            let distance = HKQuantity(unit: HKUnit.meter(), doubleValue: (activiteitDagDeel.AfstandAfgelegd*1000))
             sail = HKWorkout(activityType: HKWorkoutActivityType.sailing, start: activiteitDagDeel.tijdRange[0], end: activiteitDagDeel.tijdRange[1], duration: 0,
                                 totalEnergyBurned: energyBurned,
                                 totalDistance: distance,
@@ -37,7 +38,7 @@ class ZeilHealthManager: ObservableObject {
                              metadata:  [" opmerkingen":"\(activiteitDagDeel.opmerkingenHealthkitNotes)", "onweerEnRegen": "\(activiteitDagDeel.onweerEnRegen.description)", "CaloriesAreCustom": "\(activiteitDagDeel.calsIsCustom.description)"])
         }
        
-        let allTypesAndMinutes = Set([HKObjectType.workoutType(), HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!, HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!, HKObjectType.quantityType(forIdentifier: .stepCount)!, HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!])
+        let allTypesAndMinutes = Set([HKObjectType.workoutType(), HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!, HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!, HKObjectType.quantityType(forIdentifier: .stepCount)!, HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!, HKSeriesType.workoutRoute()])
         do {
             try await healthStore.requestAuthorization(toShare: allTypesAndMinutes, read: allTypesAndMinutes)
             logger.log("Got the health authorization")
@@ -53,6 +54,18 @@ class ZeilHealthManager: ObservableObject {
         } catch let error {
             logger.log("Failed while trying to add the sail workout to the HealthKit store with the error: \(error.localizedDescription, privacy: .public)")
         }
+        
+        // add location info
+        
+        let routeBuilder = HKWorkoutRouteBuilder(healthStore: healthStore, device: nil)
+        do {
+            try await routeBuilder.insertRouteData([CLLocation(latitude: 52.217446, longitude: 4.937078 )])
+            try await routeBuilder.finishRoute(with: sail, metadata: [HKMetadataKeyIndoorWorkout: false])
+        } catch let error {
+            logger.log("couln't add a location or finsihd the route: \(error.localizedDescription, privacy: .public)")
+        }
+        
+        
         var sailDetailSamples = [HKSample]()
         
         // Add extra info
@@ -79,6 +92,7 @@ class ZeilHealthManager: ObservableObject {
                              end: activiteitDagDeel.tijdRange[1])
 
         sailDetailSamples.append(setpCountdPerIntervalSample)
+
         
         do {
             try await healthStore.addSamples(sailDetailSamples, to: sail)
