@@ -30,6 +30,9 @@ struct ContentView: View {
                 NavigationLink("Zeilen") {
                     ZeilView()
                 }
+                NavigationLink("Snelheid") {
+                    SpeedView()
+                }
             }
         }
     }
