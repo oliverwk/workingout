@@ -39,7 +39,22 @@ struct VideoView: View {
         player.externalPlaybackVideoGravity = .resizeAspectFill
         
         player.currentItem?.externalMetadata = AddVideoMetaData()
-//        player.speeds = []
+        player.currentItem?.externalMetadata.append(AddThumnail())
+        //        player.speeds = []
+    }
+    
+    func AddThumnail() -> AVMutableMetadataItem {
+        // Creation new metadata for thumbnail
+        let thumbnailMetadata = AVMutableMetadataItem()
+        thumbnailMetadata.keySpace = AVMetadataKeySpace.common
+        thumbnailMetadata.key = AVMetadataKey.commonKeyArtwork as NSString
+        thumbnailMetadata.identifier = AVMetadataIdentifier.commonIdentifierArtwork
+        
+        thumbnailMetadata.dataType = kCMMetadataBaseDataType_PNG as String
+        thumbnailMetadata.value = try! Data(contentsOf: Bundle.main.url(forResource: "Videos/AnnasLogo", withExtension: "png")!) as NSData
+        thumbnailMetadata.extendedLanguageTag = "en" as String
+        
+        return thumbnailMetadata
     }
     
     func AddVideoMetaData() -> [AVMutableMetadataItem] {
@@ -50,18 +65,18 @@ struct VideoView: View {
         let subtitleItem = AVMutableMetadataItem()
         subtitleItem.identifier = .iTunesMetadataTrackSubTitle
         subtitleItem.value = "GrowingAnnanas" as NSString
-
+        
         let creatorItem = AVMutableMetadataItem()
         subtitleItem.identifier = .commonIdentifierCreator
         subtitleItem.value = "GrowingAnnanas" as NSString
-
+        
         let langueageItem = AVMutableMetadataItem()
         subtitleItem.identifier = .commonIdentifierLanguage
         subtitleItem.value = "English" as NSString
         
         let infoItem = AVMutableMetadataItem()
         infoItem.identifier = .commonIdentifierDescription
-        infoItem.value = "In deze video van (zo alng duurt hij) minuten gaat anna een HIIT workout doen. High Intensity Interval Training. Dit is goed voor je gezondheid en ringen" as NSString // Descriptive info paragraph
+        infoItem.value = "In deze video van (zo lang duurt hij) minuten gaat anna een HIIT workout doen. High Intensity Interval Training. Dit is goed voor je gezondheid en ringen" as NSString // Descriptive info paragraph
         
         return [titleItem, subtitleItem, creatorItem, langueageItem, infoItem]
     }
@@ -87,7 +102,7 @@ struct VideoView: View {
                     HStack {
                         Spacer()
                         Button {
-                            print("skipping forward")
+                            logger.log("skipping forward")
                             let newtime = CMTimeGetSeconds((player.currentTime())) + 55
                             if newtime < (CMTimeGetSeconds(player.currentItem!.duration) - 55) {
                                 player.seek(to: CMTimeMake(value: Int64(newtime*1000), timescale: 1000))
@@ -166,6 +181,13 @@ struct VideoView: View {
                 }
             }
             .onAppear {
+                // This is so musci or a podcast can play in the background
+                do {
+                    try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, options: [.mixWithOthers])
+                   try AVAudioSession.sharedInstance().setActive(true)
+                } catch {
+                    logger.log("somthing wnet worng with the audio background")
+                }
                 logger.log("externalDisplayContent: \(externalDisplayContent.debugDescription) View: \(ViewIsExternalScreen)")
                 if !ViewIsExternalScreen && externalDisplayContent.isShowingOnExternalDisplay {
                     externalDisplayContent.videoFile = self.video.lastPathComponent
@@ -210,13 +232,13 @@ struct VideoView: View {
                     // Calculate boundary times
                     while currentTime < self.player.currentItem!.duration {
                         currentTime = currentTime + CMTime(value: CMTimeValue(interval), timescale: currentTime.timescale)
-                        print("currentTime: \(currentTime)")
+                        logger.log("currentTime: \(currentTime.seconds, privacy: .public)")
                         times.append(NSValue(time:currentTime))
                     }
                     
                     
                     player.addBoundaryTimeObserver(forTimes: times, queue: .main) {
-                        print("add skip button for 10 seconds every 50 seconds")
+                        logger.log("add skip button for 10 seconds every 50 seconds")
                         showSkipbutton = true
                         // Wait ten seconds to not show it
                         DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
